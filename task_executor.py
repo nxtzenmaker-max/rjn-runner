@@ -41,7 +41,7 @@ def complete_task(db, task_id, status, result, duration_sec):
 
 def execute_task(task_id, instruction='', directory=''):
     db = get_db()
-    if not db:
+    if db is None:
         return {'success': False, 'error': 'Database unavailable'}
 
     try:
@@ -203,7 +203,7 @@ footer {{ text-align: center; padding: 24px; color: var(--muted); font-size: 13p
 def daemon_loop():
     print("[DAEMON] RJN Task Daemon starting up...")
     db = get_db()
-    if not db:
+    if db is None:
         print("[DAEMON] Could not connect to MongoDB. Retrying in 10s...", file=sys.stderr)
         time.sleep(10)
         return daemon_loop()
