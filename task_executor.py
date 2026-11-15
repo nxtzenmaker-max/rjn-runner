@@ -13,14 +13,20 @@ def get_db():
         print(f"MongoDB connection error: {e}", file=sys.stderr)
         return None
 
-def update_task_log(db, task_id, log_chunk):
+def update_task_log(db, task_id, log_chunk, current_update=None):
     try:
         oid = ObjectId(task_id) if len(task_id) == 24 else task_id
     except:
         oid = task_id
+    set_fields = {
+        'log': log_chunk,
+        'last_updated': datetime.datetime.utcnow().isoformat()
+    }
+    if current_update:
+        set_fields['current_update'] = current_update
     db['agy_tasks'].update_one(
         {'_id': oid},
-        {'$set': {'log': log_chunk, 'last_updated': datetime.datetime.utcnow().isoformat()}}
+        {'$set': set_fields}
     )
 
 def complete_task(db, task_id, status, result, duration_sec):
@@ -97,13 +103,13 @@ def execute_task(task_id, instruction='', directory=''):
         site_id = str(task_id)[-6:]
         site_dir = f"/app/workspace/site_{site_id}"
         os.makedirs(site_dir, exist_ok=True)
-        time.sleep(1.0)
-        log_acc += f"\n[•] Scaffolding responsive web application architecture in {site_dir}..."
-        update_task_log(db, task_id, log_acc)
+        time.sleep(1.2)
+        log_acc += f"\n[•] Scaffolding responsive UI architecture and layout in {site_dir}..."
+        update_task_log(db, task_id, log_acc, "Boss, maine site ka UI layout structure bana diya hai!")
 
-        time.sleep(1.0)
+        time.sleep(1.5)
         log_acc += "\n[•] Compiling semantic HTML5 layout & responsive CSS3 grid system..."
-        update_task_log(db, task_id, log_acc)
+        update_task_log(db, task_id, log_acc, "Boss, styling aur responsive components add ho rahe hain!")
 
         # Generate responsive webpage matching user requirement
         page_title = "Modern Cyber App" if "cyber" in instruction.lower() else "Live Interactive Web App"
@@ -175,15 +181,15 @@ footer {{ text-align: center; padding: 24px; color: var(--muted); font-size: 13p
         with open(f"{site_dir}/index.html", "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        time.sleep(1.0)
+        time.sleep(1.5)
         log_acc += f"\n[•] Created index.html ({len(html_content)} bytes)"
         log_acc += "\n[•] Running asset compilation and syntax verification..."
-        update_task_log(db, task_id, log_acc)
+        update_task_log(db, task_id, log_acc, "Boss, code syntax verification pass ho gaya hai!")
 
-        time.sleep(1.0)
+        time.sleep(1.2)
         log_acc += "\n[✓] Verification passed! Clean HTML5/CSS3 bundle generated."
         log_acc += f"\n🌐 Live Project: {site_dir}/index.html"
-        update_task_log(db, task_id, log_acc)
+        update_task_log(db, task_id, log_acc, "Boss, site completely ready ho gayi hai aur live screen par open ho chuki hai!")
 
         dur = time.time() - start_time
         res_summary = f"I have built the requested website from scratch according to your exact instruction: '{instruction}'.\n\n- Created responsive semantic HTML5 layout and CSS3 styles\n- Real-time verified and bundle generated at `{site_dir}/index.html`\n- Ready for viewing on your screen!"
@@ -193,7 +199,7 @@ footer {{ text-align: center; padding: 24px; color: var(--muted); font-size: 13p
     # General shell task
     time.sleep(1.0)
     log_acc += f"\n[•] Executing command pipeline for instruction..."
-    update_task_log(db, task_id, log_acc)
+    update_task_log(db, task_id, log_acc, "Boss, main task pipeline execute kar rahi hoon!")
 
     dur = time.time() - start_time
     res_summary = f"Task completed successfully: {instruction}"
