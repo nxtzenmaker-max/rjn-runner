@@ -105,11 +105,11 @@ def execute_task(task_id, instruction='', directory=''):
         os.makedirs(site_dir, exist_ok=True)
         time.sleep(1.2)
         log_acc += f"\n[•] Scaffolding responsive UI architecture and layout in {site_dir}..."
-        update_task_log(db, task_id, log_acc, "Boss, maine site ka UI layout structure bana diya hai!")
+        update_task_log(db, task_id, log_acc, "बॉस, मैंने साइट का यूआई लेआउट स्ट्रक्चर बना दिया है!")
 
         time.sleep(1.5)
         log_acc += "\n[•] Compiling semantic HTML5 layout & responsive CSS3 grid system..."
-        update_task_log(db, task_id, log_acc, "Boss, styling aur responsive components add ho rahe hain!")
+        update_task_log(db, task_id, log_acc, "बॉस, स्टाइलिंग और रिस्पॉन्सिव कंपोनेंट्स ऐड हो रहे हैं!")
 
         # Generate responsive webpage matching user requirement
         page_title = "Modern Cyber App" if "cyber" in instruction.lower() else "Live Interactive Web App"
@@ -184,12 +184,12 @@ footer {{ text-align: center; padding: 24px; color: var(--muted); font-size: 13p
         time.sleep(1.5)
         log_acc += f"\n[•] Created index.html ({len(html_content)} bytes)"
         log_acc += "\n[•] Running asset compilation and syntax verification..."
-        update_task_log(db, task_id, log_acc, "Boss, code syntax verification pass ho gaya hai!")
+        update_task_log(db, task_id, log_acc, "बॉस, कोड सिंटैक्स वेरिफिकेशन पास हो गया है!")
 
         time.sleep(1.2)
         log_acc += "\n[✓] Verification passed! Clean HTML5/CSS3 bundle generated."
         log_acc += f"\n🌐 Live Project: {site_dir}/index.html"
-        update_task_log(db, task_id, log_acc, "Boss, site completely ready ho gayi hai aur live screen par open ho chuki hai!")
+        update_task_log(db, task_id, log_acc, "बॉस, साइट बिल्कुल रेडी हो गई है और स्क्रीन पर ओपन हो चुकी है!")
 
         dur = time.time() - start_time
         res_summary = f"I have built the requested website from scratch according to your exact instruction: '{instruction}'.\n\n- Created responsive semantic HTML5 layout and CSS3 styles\n- Real-time verified and bundle generated at `{site_dir}/index.html`\n- Ready for viewing on your screen!"
@@ -199,7 +199,7 @@ footer {{ text-align: center; padding: 24px; color: var(--muted); font-size: 13p
     # General shell task
     time.sleep(1.0)
     log_acc += f"\n[•] Executing command pipeline for instruction..."
-    update_task_log(db, task_id, log_acc, "Boss, main task pipeline execute kar rahi hoon!")
+    update_task_log(db, task_id, log_acc, "बॉस, मैं टास्क पाइपलाइन रन कर रही हूँ!")
 
     dur = time.time() - start_time
     res_summary = f"Task completed successfully: {instruction}"
