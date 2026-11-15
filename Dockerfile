@@ -16,6 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN pip3 install --no-cache-dir --break-system-packages pymongo requests
 
+# Install cloudflared (Cloudflare Tunnel binary)
+RUN curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o /usr/local/bin/cloudflared && chmod +x /usr/local/bin/cloudflared
+
 WORKDIR /app
 
 COPY package*.json ./
