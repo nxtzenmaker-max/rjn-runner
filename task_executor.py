@@ -227,14 +227,15 @@ footer {{ text-align: center; padding: 24px; color: var(--muted); font-size: 13p
         update_task_log(db, task_id, log_acc, "बॉस, कोड सिंटैक्स वेरिफिकेशन पास हो गया है!")
 
         time.sleep(1.2)
-        log_acc += "\n[✓] Verification passed! Clean HTML5/CSS3 bundle generated."
-        log_acc += f"\n🌐 Live Project: {site_dir}/index.html"
-        update_task_log(db, task_id, log_acc, "बॉस, साइट बिल्कुल रेडी हो गई है और स्क्रीन पर ओपन हो चुकी है!")
+        live_url = f"https://rjn-runner-production.up.railway.app/sites/{site_id}"
+        log_acc += f"\n[✓] Verification passed! Clean HTML5/CSS3 bundle generated."
+        log_acc += f"\n🌐 Live Project: {live_url}"
+        update_task_log(db, task_id, log_acc, f"बॉस, साइट बिल्कुल रेडी हो गई है! लाइव लिंक: {live_url}")
 
         dur = time.time() - start_time
-        res_summary = f"I have built the requested website from scratch according to your exact instruction: '{instruction}'.\n\n- Created responsive semantic HTML5 layout and CSS3 styles\n- Real-time verified and bundle generated at `{site_dir}/index.html`\n- Ready for viewing on your screen!"
+        res_summary = f"I have built the requested website from scratch according to your exact instruction: '{instruction}'.\n\n- Created responsive semantic HTML5 layout and CSS3 styles\n- Real-time verified and live deployed at: {live_url}\n- Ready for viewing immediately on any device!"
         complete_task(db, task_id, 'completed', res_summary, dur)
-        return {'success': True, 'result': res_summary, 'site_path': f"{site_dir}/index.html"}
+        return {'success': True, 'result': res_summary, 'site_path': f"{site_dir}/index.html", 'live_url': live_url}
 
     # General shell task
     time.sleep(1.0)
