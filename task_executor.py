@@ -29,6 +29,44 @@ def update_task_log(db, task_id, log_chunk, current_update=None):
         {'$set': set_fields}
     )
 
+def generate_ai_website(instruction):
+    FREEMODEL_KEY = "fm_6e8554bd3701f71dffff6ece1e11ace37c88017dda1c8e03"
+    FREEMODEL_URL = "https://freemodel.in/v1/chat/completions"
+    prompt = f"""You are Claude Opus 5.5, the world's finest web designer and developer.
+Build a complete, stunning, production-ready, single-file HTML website with inline CSS and modern JavaScript for: "{instruction}".
+Make it fully responsive for mobile and desktop with a modern dark theme, smooth micro-interactions, beautiful gradients, and engaging interactive components.
+OUTPUT ONLY RAW HTML! Do NOT wrap in markdown code blocks. Start directly with <!DOCTYPE html>."""
+
+    try:
+        import urllib.request
+        data = json.dumps({
+            "model": "claude-opus-5-5",
+            "messages": [
+                {"role": "user", "content": prompt}
+            ],
+            "max_tokens": 4000,
+            "temperature": 0.3
+        }).encode("utf-8")
+        req = urllib.request.Request(FREEMODEL_URL, data=data, headers={
+            "Authorization": f"Bearer {FREEMODEL_KEY}",
+            "Content-Type": "application/json"
+        })
+        with urllib.request.urlopen(req, timeout=35) as resp:
+            res = json.loads(resp.read().decode("utf-8"))
+            html = (res.get("choices", [{}])[0].get("message", {}).get("content") or "").strip()
+            if html.startswith("```"):
+                lines = html.splitlines()
+                if lines[0].startswith("```"):
+                    lines = lines[1:]
+                if lines and lines[-1].startswith("```"):
+                    lines = lines[:-1]
+                html = "\n".join(lines).strip()
+            if len(html) > 100 and "<html" in html.lower():
+                return html
+    except Exception as e:
+        print(f"FreeModel Claude Opus generation error: {e}", file=sys.stderr)
+    return None
+
 def complete_task(db, task_id, status, result, duration_sec):
     try:
         oid = ObjectId(task_id) if len(task_id) == 24 else task_id
@@ -103,17 +141,19 @@ def execute_task(task_id, instruction='', directory=''):
         site_id = str(task_id)[-6:]
         site_dir = f"/app/workspace/site_{site_id}"
         os.makedirs(site_dir, exist_ok=True)
-        time.sleep(1.2)
+        time.sleep(1.0)
         log_acc += f"\n[•] Scaffolding responsive UI architecture and layout in {site_dir}..."
-        update_task_log(db, task_id, log_acc, "बॉस, मैंने साइट का यूआई लेआउट स्ट्रक्चर बना दिया है!")
+        log_acc += "\n[•] Prompting Claude Opus 5.5 (FreeModel) to design and code bespoke application..."
+        update_task_log(db, task_id, log_acc, "बॉस, Claude Opus 5.5 से कस्टम वेबसाइट कोड करवाई जा रही है!")
 
-        time.sleep(1.5)
-        log_acc += "\n[•] Compiling semantic HTML5 layout & responsive CSS3 grid system..."
-        update_task_log(db, task_id, log_acc, "बॉस, स्टाइलिंग और रिस्पॉन्सिव कंपोनेंट्स ऐड हो रहे हैं!")
-
-        # Generate responsive webpage matching user requirement
-        page_title = "Modern Cyber App" if "cyber" in instruction.lower() else "Live Interactive Web App"
-        html_content = f"""<!DOCTYPE html>
+        ai_html = generate_ai_website(instruction)
+        if ai_html:
+            html_content = ai_html
+            log_acc += f"\n[✓] Claude Opus 5.5 synthesized bespoke production codebase ({len(ai_html)} bytes)"
+        else:
+            log_acc += "\n[•] Compiling semantic HTML5 layout & responsive CSS3 grid system..."
+            page_title = "Modern Cyber App" if "cyber" in instruction.lower() else "Live Interactive Web App"
+            html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
