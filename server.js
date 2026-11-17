@@ -253,6 +253,49 @@ app.post('/python', authenticate, (req, res) => {
   );
 });
 
+// 5. Vision AI Analysis Endpoint (Direct BLIP + PyTesseract OCR)
+app.post('/vision/analyze', authenticate, (req, res) => {
+  const { image_base64, image_url, timeout = 30000 } = req.body;
+  if (!image_base64 && !image_url) {
+    return res.status(400).json({ success: false, error: 'Missing image_base64 or image_url' });
+  }
+
+  const tempImg = path.join(os.tmpdir(), `vision_${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`);
+  try {
+    if (image_base64) {
+      const cleanB64 = image_base64.replace(/^data:image\/[a-z]+;base64,/, '');
+      fs.writeFileSync(tempImg, Buffer.from(cleanB64, 'base64'));
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'Failed to write image: ' + err.message });
+  }
+
+  const runnerCmd = image_url 
+    ? `/root/vision_venv/bin/python3 /root/vision_analyzer.py analyze_url "${image_url.replace(/"/g, '\\"')}"`
+    : `/root/vision_venv/bin/python3 /root/vision_analyzer.py analyze_file "${tempImg}"`;
+
+  exec(
+    runnerCmd,
+    {
+      shell: '/bin/bash',
+      timeout: Math.min(Number(timeout) || 30000, 60000),
+      maxBuffer: 5 * 1024 * 1024
+    },
+    (error, stdout, stderr) => {
+      try { if (fs.existsSync(tempImg)) fs.unlinkSync(tempImg); } catch (e) {}
+      if (error) {
+        return res.status(500).json({ success: false, error: (stderr || error.message).trim() });
+      }
+      try {
+        const result = JSON.parse(stdout.trim());
+        res.json(result);
+      } catch (e) {
+        res.json({ success: false, error: 'Failed to parse vision output', raw: stdout });
+      }
+    }
+  );
+});
+
 // ================= 📱 ANDROID COMPANION DEVICE BRIDGE (WEBSOCKET) =================
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/device-bridge' });
